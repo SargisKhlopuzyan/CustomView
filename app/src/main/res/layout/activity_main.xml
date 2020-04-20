@@ -7,18 +7,10 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
-    <ScrollView
+    <com.example.customview.ui.AvatarImageViewMask
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-
-        <com.example.customview.ui.AvatarImageViewMask
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:src="@drawable/ic_launcher_background" />
-
-
-    </ScrollView>
-
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_man" />
 
     <TextView
         android:layout_width="100dp"
