@@ -27,10 +27,12 @@ class AvatarImageViewMask @JvmOverloads constructor(
 
     @Px
     private var borderWidth: Float = context.dpToOx(DEFAULT_BORDER_WIDTH)
+
     @ColorInt
     private var borderColor: Int = Color.WHITE
     private var initials: String = "??"
     private val maskPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val borderPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val viewRect = Rect()
     private lateinit var resultBm: Bitmap
     private lateinit var maskBm: Bitmap
@@ -100,12 +102,23 @@ class AvatarImageViewMask @JvmOverloads constructor(
         // NOT allocate, only draw
         canvas.drawBitmap(resultBm, viewRect, viewRect, null)
 //        canvas.drawBitmap(maskBm, viewRect, viewRect, null)
+
+        // resize rect
+        val half = (borderWidth / 2).toInt()
+        viewRect.inset(half, half)
+        canvas.drawOval(viewRect.toRectF(), borderPaint)
     }
 
     private fun setup() {
         with(maskPaint) {
             color = Color.RED
             style = Paint.Style.FILL
+        }
+
+        with(borderPaint) {
+            style = Paint.Style.STROKE
+            strokeWidth = borderWidth
+            color = borderColor
         }
     }
 
@@ -129,6 +142,5 @@ class AvatarImageViewMask @JvmOverloads constructor(
         resultCanvas.drawBitmap(srcBm, viewRect, viewRect, maskPaint)
 //        resultCanvas.drawBitmap(srcBm, viewRect, viewRect, null)
     }
-
 
 }
