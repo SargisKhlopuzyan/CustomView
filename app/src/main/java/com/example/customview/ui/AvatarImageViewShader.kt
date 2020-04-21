@@ -13,7 +13,7 @@ import androidx.core.graphics.toRectF
 import com.example.customview.R
 import com.example.customview.extentions.dpToOx
 
-class AvatarImageViewMask @JvmOverloads constructor(
+class AvatarImageViewShader @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
@@ -32,11 +32,10 @@ class AvatarImageViewMask @JvmOverloads constructor(
     private var borderColor: Int = Color.WHITE
     private var initials: String = "??"
     private val maskPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+
+    private val avatarPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val borderPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val viewRect = Rect()
-    private lateinit var resultBm: Bitmap
-    private lateinit var maskBm: Bitmap
-    private lateinit var srcBm: Bitmap
 
     init {
         if (attrs != null) {
@@ -81,15 +80,15 @@ class AvatarImageViewMask @JvmOverloads constructor(
             bottom = h
         }
 
-        prepareBitmaps(w, h)
+        prepareShader(w, h)
     }
 
     override fun onDraw(canvas: Canvas) {
 //        super.onDraw(canvas)
         Log.e("LOG_TAG", "onDraw")
         // NOT allocate, only draw
-        canvas.drawBitmap(resultBm, viewRect, viewRect, null)
-//        canvas.drawBitmap(maskBm, viewRect, viewRect, null)
+
+        canvas.drawOval(viewRect.toRectF(), avatarPaint)
 
         // resize rect
         val half = (borderWidth / 2).toInt()
@@ -98,11 +97,6 @@ class AvatarImageViewMask @JvmOverloads constructor(
     }
 
     private fun setup() {
-        with(maskPaint) {
-            color = Color.RED
-            style = Paint.Style.FILL
-        }
-
         with(borderPaint) {
             style = Paint.Style.STROKE
             strokeWidth = borderWidth
@@ -110,25 +104,11 @@ class AvatarImageViewMask @JvmOverloads constructor(
         }
     }
 
-    private fun prepareBitmaps(w: Int, h: Int) {
+    private fun prepareShader(w: Int, h: Int) {
         //prepare buffer this
 
-//        maskBm = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
-        maskBm = Bitmap.createBitmap(w, h, Bitmap.Config.ALPHA_8)
-        resultBm = maskBm.copy(Bitmap.Config.ARGB_8888, true)
-
-        val maskCanvas = Canvas(maskBm)
-        maskCanvas.drawOval(viewRect.toRectF(), maskPaint)
-
-
-        maskPaint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
-//        maskPaint.xfermode = PorterDuffXfermode(PorterDuff.Mode.DST_OVER)
-        srcBm = drawable.toBitmap(w, h, Bitmap.Config.ARGB_8888)
-//
-        val resultCanvas = Canvas(resultBm)
-        resultCanvas.drawBitmap(maskBm, viewRect, viewRect, null)
-        resultCanvas.drawBitmap(srcBm, viewRect, viewRect, maskPaint)
-//        resultCanvas.drawBitmap(srcBm, viewRect, viewRect, null)
+        val srcBm = drawable.toBitmap(w, h, Bitmap.Config.ARGB_8888)
+        avatarPaint.shader = BitmapShader(srcBm, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP)
     }
 
     private fun resolveDefaultSize(spec: Int): Int {
@@ -142,4 +122,5 @@ class AvatarImageViewMask @JvmOverloads constructor(
             else -> MeasureSpec.getSize(spec)
         }
     }
+
 }
